@@ -430,6 +430,11 @@ function getFilteredBallotsMap(ballotsByCandidate, candidates) {
       filteredBallotsMap.set(c, v);
     }
   }
+  for (const c of candidates) {
+    if (!filteredBallotsMap.has(c.i)) {
+      filteredBallotsMap.set(c.i, []);
+    }
+  }
   return filteredBallotsMap;
 }
 
