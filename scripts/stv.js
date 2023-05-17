@@ -369,7 +369,7 @@ function getHagenbachBischoffQuota(ballotCount, seatCount) {
 function getProvisionals(ballotsByCandidate, quota) {
   const provisionals = new Map();
   for (const [c, v] of ballotsByCandidate) {
-    if (v.reduce((sum, i) => sum + i.value, 0) >= quota) {
+    if (v.reduce((sum, i) => sum + i.value, 0) > quota) {
       provisionals.set(c, v);
     }
   }
@@ -428,6 +428,11 @@ function getFilteredBallotsMap(ballotsByCandidate, candidates) {
   for (const [c, v] of ballotsByCandidate) {
     if (candidates.includes(Candidate.map.get(c))) {
       filteredBallotsMap.set(c, v);
+    }
+  }
+  for (const c of candidates) {
+    if (!filteredBallotsMap.has(c.i)) {
+      filteredBallotsMap.set(c.i, []);
     }
   }
   return filteredBallotsMap;
