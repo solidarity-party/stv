@@ -492,12 +492,14 @@ function exclude(continuing, provisionals, ballotsByCandidate, excluded) {
 }
 
 function rankedPairs(exc, ballotsByCandidate) {
+  // Get all pair combinations
   const pairs = [];
   for (let i = 0; i < exc.length - 1; i++) {
     for (let j = i + 1; j < exc.length; j++) {
       pairs.push([exc[i], exc[j]]);
     }
   }
+  // For each pair combination, determine which is the winner
   const pairValues = [];
   for (const [a, b] of pairs) {
     let aCount = 0;
@@ -517,22 +519,26 @@ function rankedPairs(exc, ballotsByCandidate) {
     }
     let winnerCount;
     if (aCount > bCount) {
-      winner = [a, aCount];
+      winnerCount = [a, aCount];
     } else if (bCount > aCount) {
-      winner = [b, bCount];
+      winnerCount = [b, bCount];
     } else {
-      winner = [null, aCount];
+      winnerCount = [null, aCount];
     }
-    pairValues.push([[a, b], winner]);
+    pairValues.push([[a, b], winnerCount]);
   }
+  // Sort by the greatest winner
   pairValues.sort(([pair1, [winner1, value1]], [pair2, [winner2, value2]]) => value2 - value1);
-  let ret;
-  for (let i = 0; !ret && i < pairValues.length; i++) {
-    ret = pairValues[i][1][0];
+
+  // For the pair that has the greatest winner, exclude the loser.
+  let loserOfGreatestPair;
+  for (let i = 0; !loserOfGreatestPair && i < pairValues.length; i++) {
+    let winnerOfGreatestPair = pairValues[i][1][0];
+    loserOfGreatestPair = pairValues[i][0][0] == winnerOfGreatestPair ? pairValues[i][0][1] : pairValues[i][0][0];
   }
-  if (ret) {
+  if (loserOfGreatestPair) {
     exc.length = 0;
-    exc.push(ret);
+    exc.push(loserOfGreatestPair);
   } else {
     console.log(`Tie in ranked pairs! Using first element among ties: ${exc}`);
     exc.length = 1;
